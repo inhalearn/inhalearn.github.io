@@ -27,7 +27,8 @@
     },
     {
       "dir": "5-stage-3-5",
-      "status": "pending"
+      "status": "completed",
+      "completed_at": "2026-05-05T22:12:26+0900"
     }
   ]
 }
