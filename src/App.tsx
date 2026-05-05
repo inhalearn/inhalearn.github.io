@@ -119,14 +119,14 @@ function LevelSelect() {
             홈으로
           </Link>
           <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-[#007299]">
-            2개 스테이지 준비됨
+            {levels.length}개 스테이지 준비됨
           </span>
         </div>
         <h1 className="mt-6 text-3xl font-black tracking-[-0.04em] text-slate-950">
           레벨 선택
         </h1>
         <p className="mt-3 text-base leading-7 text-slate-600">
-          튜토리얼과 계단 스테이지를 바로 플레이할 수 있습니다.
+          튜토리얼, 계단, 반복 발견 스테이지를 바로 플레이할 수 있습니다.
         </p>
         <div className="mt-6 grid gap-3">
           {levels.map((level) => (

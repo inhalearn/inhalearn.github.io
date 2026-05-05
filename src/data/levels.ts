@@ -32,6 +32,22 @@ export const levels: LevelConfig[] = [
       '총 6개의 블록이 필요해요',
     ],
   },
+  {
+    id: 2,
+    title: '반복의 발견',
+    mission: '인덕이를 5칸 오른쪽으로 이동시키세요',
+    gridSize: 6,
+    startPosition: { x: 0, y: 2 },
+    goalPosition: { x: 5, y: 2 },
+    availableBlocks: ['move-right'],
+    optimalBlockCount: 2,
+    hints: [
+      '같은 블록을 여러 번 쓰고 있나요?',
+      '반복 블록을 사용하면 훨씬 간단해져요!',
+    ],
+    discoveryMode: true,
+    unlockRepeatAt: 5,
+  },
 ];
 
 export function getLevelById(levelId: number): LevelConfig | undefined {

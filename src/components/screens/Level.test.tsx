@@ -51,6 +51,36 @@ describe('Level screen', () => {
     });
   });
 
+  it('unlocks repeat after discovery in level 2 and shows comparison modal on success', async () => {
+    renderLevel('/level/2');
+
+    expect(screen.getByTestId('block-picker-move-right')).toBeDefined();
+    expect(screen.queryByTestId('block-picker-repeat')).toBeNull();
+
+    for (let count = 0; count < 5; count += 1) {
+      fireEvent.click(screen.getByTestId('block-picker-move-right'));
+    }
+
+    await waitFor(() => {
+      expect(screen.getByText('발견!')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: '💡 힌트 보기' }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('block-picker-repeat')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: '전체 지우기' }));
+    fireEvent.click(screen.getByTestId('block-picker-repeat'));
+    fireEvent.click(screen.getByRole('button', { name: '오른쪽 추가' }));
+    fireEvent.click(screen.getByRole('button', { name: '▶ 실행하기' }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/코드 비교/)).toBeDefined();
+    });
+  });
+
   it('handles an invalid level id', () => {
     renderLevel('/level/999');
 

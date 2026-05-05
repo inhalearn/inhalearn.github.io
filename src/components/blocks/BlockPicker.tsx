@@ -1,5 +1,6 @@
 import { BlockType } from '@/types/block';
 import { Button } from '@/components/ui/Button';
+import { getBlockTypeLabel } from './blockText';
 
 interface BlockPickerProps {
   availableBlocks: BlockType[];
@@ -32,22 +33,22 @@ const blockMeta: Record<
     tone: 'bg-sky-500 text-white',
   },
   repeat: {
-    label: '반복',
+    label: getBlockTypeLabel('repeat'),
     icon: '🔁',
     tone: 'bg-violet-500 text-white',
   },
   color: {
-    label: '색깔',
+    label: getBlockTypeLabel('color'),
     icon: '🎨',
     tone: 'bg-orange-400 text-white',
   },
   'pen-up': {
-    label: '펜 들기',
+    label: getBlockTypeLabel('pen-up'),
     icon: '✏️',
     tone: 'bg-orange-400 text-white',
   },
   'pen-down': {
-    label: '펜 놓기',
+    label: getBlockTypeLabel('pen-down'),
     icon: '🖍️',
     tone: 'bg-orange-400 text-white',
   },

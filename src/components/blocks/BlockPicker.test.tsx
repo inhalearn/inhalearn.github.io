@@ -30,4 +30,15 @@ describe('BlockPicker', () => {
 
     expect(onAddBlock).toHaveBeenCalledWith('move-right');
   });
+
+  it('renders repeat when it is available', () => {
+    render(
+      <BlockPicker
+        availableBlocks={['move-right', 'repeat']}
+        onAddBlock={() => undefined}
+      />
+    );
+
+    expect(screen.getByTestId('block-picker-repeat')).toBeDefined();
+  });
 });

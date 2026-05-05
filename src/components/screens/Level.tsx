@@ -1,20 +1,23 @@
-import { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Block, BlockType } from '@/types/block';
 import { getLevelById, getNextLevelId } from '@/data/levels';
+import { LevelConfig } from '@/types/level';
 import { useCodeStore } from '@/store/codeStore';
 import { useLevelStore } from '@/store/levelStore';
 import { Button } from '@/components/ui/Button';
 import { Canvas } from '@/components/canvas/Canvas';
 import { BlockPicker } from '@/components/blocks/BlockPicker';
 import { CodeEditor } from '@/components/blocks/CodeEditor';
+import { DiscoveryModal } from '@/components/ui/DiscoveryModal';
+import { ComparisonModal } from '@/components/ui/ComparisonModal';
 
-function createBlock(type: BlockType): Block {
+function createBlock(type: BlockType, defaultRepeatCount = 2): Block {
   const id = `${type}-${crypto.randomUUID()}`;
 
   switch (type) {
     case 'repeat':
-      return { id, type, count: 2, children: [] };
+      return { id, type, count: defaultRepeatCount, children: [] };
     case 'color':
       return { id, type, color: '#0099CC' };
     case 'pen-up':
@@ -27,33 +30,22 @@ function createBlock(type: BlockType): Block {
   }
 }
 
+function cloneBlocks(blocks: Block[]): Block[] {
+  return blocks.map((block) =>
+    block.type === 'repeat'
+      ? { ...block, children: cloneBlocks(block.children) }
+      : { ...block }
+  );
+}
+
+function hasRepeatBlock(blocks: Block[]): boolean {
+  return blocks.some((block) => block.type === 'repeat');
+}
+
 export function Level() {
   const { id } = useParams();
   const levelId = Number(id);
   const level = Number.isNaN(levelId) ? undefined : getLevelById(levelId);
-
-  const blocks = useCodeStore((state) => state.blocks);
-  const addBlock = useCodeStore((state) => state.addBlock);
-  const removeBlock = useCodeStore((state) => state.removeBlock);
-  const clearBlocks = useCodeStore((state) => state.clearBlocks);
-
-  const currentLevel = useLevelStore((state) => state.currentLevel);
-  const isExecuting = useLevelStore((state) => state.isExecuting);
-  const executionResult = useLevelStore((state) => state.executionResult);
-  const errorBlockIndex = useLevelStore((state) => state.errorBlockIndex);
-  const execute = useLevelStore((state) => state.execute);
-  const reset = useLevelStore((state) => state.reset);
-  const setCurrentLevel = useLevelStore((state) => state.setCurrentLevel);
-  const setExecutionSpeed = useLevelStore((state) => state.setExecutionSpeed);
-
-  useEffect(() => {
-    clearBlocks();
-    reset();
-
-    if (level) {
-      setCurrentLevel(level.id);
-    }
-  }, [clearBlocks, level, reset, setCurrentLevel]);
 
   if (!level) {
     return (
@@ -73,10 +65,82 @@ export function Level() {
     );
   }
 
+  return <LevelSession key={level.id} level={level} />;
+}
+
+function LevelSession({ level }: { level: LevelConfig }) {
+  const navigate = useNavigate();
+  const [isRepeatUnlocked, setIsRepeatUnlocked] = useState(false);
+  const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
+  const [showComparisonModal, setShowComparisonModal] = useState(false);
+  const [discoverySnapshot, setDiscoverySnapshot] = useState<Block[]>([]);
+  const [hasShownDiscovery, setHasShownDiscovery] = useState(false);
+
+  const blocks = useCodeStore((state) => state.blocks);
+  const addBlock = useCodeStore((state) => state.addBlock);
+  const removeBlock = useCodeStore((state) => state.removeBlock);
+  const clearBlocks = useCodeStore((state) => state.clearBlocks);
+  const updateBlock = useCodeStore((state) => state.updateBlock);
+
+  const currentLevel = useLevelStore((state) => state.currentLevel);
+  const isExecuting = useLevelStore((state) => state.isExecuting);
+  const executionResult = useLevelStore((state) => state.executionResult);
+  const errorBlockIndex = useLevelStore((state) => state.errorBlockIndex);
+  const execute = useLevelStore((state) => state.execute);
+  const reset = useLevelStore((state) => state.reset);
+  const setCurrentLevel = useLevelStore((state) => state.setCurrentLevel);
+  const setExecutionSpeed = useLevelStore((state) => state.setExecutionSpeed);
+  const showHint = useLevelStore((state) => state.showHint);
+
+  useEffect(() => {
+    clearBlocks();
+    reset();
+    setCurrentLevel(level.id);
+  }, [clearBlocks, level.id, reset, setCurrentLevel]);
+
   const currentPosition = executionResult?.finalPosition ?? level.startPosition;
   const trail = executionResult?.trail ?? [level.startPosition];
   const nextLevelId = getNextLevelId(level.id);
   const missionComplete = executionResult?.success ?? false;
+  const availableBlocks: BlockType[] = isRepeatUnlocked
+    ? level.availableBlocks.includes('repeat')
+      ? level.availableBlocks
+      : [...level.availableBlocks, 'repeat']
+    : level.availableBlocks;
+  const defaultRepeatCount = level.unlockRepeatAt ?? 2;
+  const levelCreateBlock = (type: BlockType) => createBlock(type, defaultRepeatCount);
+  const handleAddBlock = (type: BlockType) => {
+    const nextBlock = levelCreateBlock(type);
+    const nextBlocks = [...blocks, nextBlock];
+
+    addBlock(nextBlock);
+
+    if (
+      level.discoveryMode &&
+      !isRepeatUnlocked &&
+      !hasShownDiscovery &&
+      (level.unlockRepeatAt ?? 0) > 0 &&
+      nextBlocks.length >= (level.unlockRepeatAt ?? 0) &&
+      nextBlocks.every((block) => block.type === 'move-right')
+    ) {
+      setDiscoverySnapshot(cloneBlocks(nextBlocks));
+      setShowDiscoveryModal(true);
+      setHasShownDiscovery(true);
+    }
+  };
+  const handleExecute = async () => {
+    await execute(blocks, level);
+
+    const latestResult = useLevelStore.getState().executionResult;
+    if (
+      level.id === 2 &&
+      latestResult?.success &&
+      isRepeatUnlocked &&
+      hasRepeatBlock(blocks)
+    ) {
+      setShowComparisonModal(true);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#edf8fd_0%,#f8fbfd_45%,#ffffff_100%)] px-4 py-6 text-slate-900">
@@ -134,16 +198,19 @@ export function Level() {
         </div>
 
         <BlockPicker
-          availableBlocks={level.availableBlocks}
+          availableBlocks={availableBlocks}
           disabled={isExecuting}
-          onAddBlock={(type) => addBlock(createBlock(type))}
+          onAddBlock={handleAddBlock}
         />
 
         <CodeEditor
           blocks={blocks}
           errorBlockIndex={errorBlockIndex}
+          availableChildBlocks={availableBlocks}
           onRemoveBlock={removeBlock}
           onClearBlocks={clearBlocks}
+          onUpdateBlock={updateBlock}
+          createBlock={levelCreateBlock}
         />
 
         <section className="rounded-[28px] bg-white p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-slate-200">
@@ -151,7 +218,7 @@ export function Level() {
             className="w-full"
             size="lg"
             disabled={isExecuting || blocks.length === 0}
-            onClick={() => void execute(blocks, level)}
+            onClick={() => void handleExecute()}
           >
             ▶ 실행하기
           </Button>
@@ -187,6 +254,34 @@ export function Level() {
           ) : null}
         </section>
       </div>
+
+      <DiscoveryModal
+        isOpen={showDiscoveryModal}
+        onClose={() => setShowDiscoveryModal(false)}
+        onContinue={() => setShowDiscoveryModal(false)}
+        onHint={() => {
+          showHint();
+          setIsRepeatUnlocked(true);
+          setShowDiscoveryModal(false);
+        }}
+      />
+
+      <ComparisonModal
+        isOpen={showComparisonModal}
+        beforeBlocks={discoverySnapshot}
+        afterBlocks={blocks}
+        onClose={() => setShowComparisonModal(false)}
+        onNext={() => {
+          setShowComparisonModal(false);
+
+          if (nextLevelId !== null) {
+            navigate(`/level/${nextLevelId}`);
+            return;
+          }
+
+          navigate('/completion');
+        }}
+      />
     </main>
   );
 }

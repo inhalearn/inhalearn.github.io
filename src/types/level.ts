@@ -20,6 +20,8 @@ export interface LevelConfig {
   maxBlocks?: number; // 최대 블록 수 (선택)
   hints: string[]; // 힌트 목록
   optimalBlockCount: number; // 최적 블록 수 (별 3개 기준)
+  discoveryMode?: boolean;
+  unlockRepeatAt?: number;
 }
 
 /**

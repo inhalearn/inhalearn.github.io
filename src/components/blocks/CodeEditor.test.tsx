@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { CodeEditor } from './CodeEditor';
+import { Block, BlockType } from '@/types/block';
 
 describe('CodeEditor', () => {
   it('shows empty state when there are no blocks', () => {
@@ -62,5 +63,41 @@ describe('CodeEditor', () => {
     );
 
     expect(screen.getByTestId('code-block-1').className).toContain('border-red-400');
+  });
+
+  it('allows editing a repeat block count and children', () => {
+    const onUpdateBlock = vi.fn();
+    const createBlock = vi.fn((type: BlockType): Block => {
+      if (type === 'repeat') {
+        return { id: 'nested-repeat', type, count: 2, children: [] };
+      }
+
+      if (type === 'move-right') {
+        return { id: 'child-right', type };
+      }
+
+      return { id: 'fallback-right', type: 'move-right' };
+    });
+
+    render(
+      <CodeEditor
+        blocks={[{ id: 'repeat-1', type: 'repeat', count: 2, children: [] }]}
+        availableChildBlocks={['move-right', 'repeat']}
+        onRemoveBlock={() => undefined}
+        onClearBlocks={() => undefined}
+        onUpdateBlock={onUpdateBlock}
+        createBlock={createBlock}
+      />
+    );
+
+    fireEvent.change(screen.getByTestId('repeat-count-repeat-1'), {
+      target: { value: '5' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '오른쪽 추가' }));
+
+    expect(onUpdateBlock).toHaveBeenCalledWith('repeat-1', { count: 5 });
+    expect(onUpdateBlock).toHaveBeenCalledWith('repeat-1', {
+      children: [{ id: 'child-right', type: 'move-right' }],
+    });
   });
 });
