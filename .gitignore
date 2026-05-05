@@ -43,3 +43,6 @@ lerna-debug.log*
 # Phase execution outputs (하네스 프레임워크)
 phases/**/phase*-output.json
 phases/**/step*-output.json
+
+# Claude Code worktrees
+.claude/worktrees/

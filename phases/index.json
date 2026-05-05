@@ -4,6 +4,15 @@
       "dir": "0-setup",
       "status": "completed",
       "completed_at": "2026-05-05T16:25:39+0900"
+    },
+    {
+      "dir": "1-engine",
+      "status": "completed",
+      "completed_at": "2026-05-05T20:35:56+0900"
+    },
+    {
+      "dir": "2-ui-structure",
+      "status": "pending"
     }
   ]
 }
