@@ -4,6 +4,11 @@
       "dir": "0-setup",
       "status": "completed",
       "completed_at": "2026-05-05T16:25:39+0900"
+    },
+    {
+      "dir": "1-engine",
+      "status": "in_progress",
+      "started_at": "2026-05-05T20:27:00+0900"
     }
   ]
 }
