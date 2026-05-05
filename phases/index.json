@@ -7,8 +7,9 @@
     },
     {
       "dir": "1-engine",
-      "status": "in_progress",
-      "started_at": "2026-05-05T20:27:00+0900"
+      "status": "completed",
+      "started_at": "2026-05-05T20:27:00+0900",
+      "completed_at": "2026-05-05T20:34:42+0900"
     }
   ]
 }
