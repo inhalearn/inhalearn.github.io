@@ -1,0 +1,30 @@
+{
+  "project": "인하런",
+  "phase": "4-stage-2",
+  "steps": [
+    {
+      "step": 0,
+      "name": "level-config",
+      "status": "error",
+      "started_at": "2026-05-05T21:40:55+0900",
+      "error_message": "[3회 시도 후 실패] Step did not update status",
+      "failed_at": "2026-05-05T21:41:15+0900"
+    },
+    {
+      "step": 1,
+      "name": "discovery-ui",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "repeat-editor",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "level-discovery-flow",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-05-05T21:40:55+0900"
+}
