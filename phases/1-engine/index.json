@@ -7,7 +7,7 @@
       "name": "core-types",
       "status": "completed",
       "started_at": "2026-05-05T20:25:31+0900",
-      "completed_at": "2026-05-05T20:27:00+0900",
+      "completed_at": "2026-05-05T20:27:27+0900",
       "summary": "Created 5 type definition files (position, block, level, execution, index) with discriminated unions and barrel exports"
     },
     {
