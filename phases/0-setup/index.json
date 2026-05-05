@@ -29,7 +29,10 @@
     {
       "step": 3,
       "name": "test-setup",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-05-05T16:21:51+0900",
+      "completed_at": "2026-05-05T16:24:30+0900",
+      "summary": "Vitest 테스트 환경, package.json 스크립트, 빌드/린트 파이프라인 구축 완료"
     }
   ],
   "created_at": "2026-05-05T16:07:30+0900"

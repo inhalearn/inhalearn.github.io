@@ -2,7 +2,7 @@
   "phases": [
     {
       "dir": "0-setup",
-      "status": "pending"
+      "status": "completed"
     }
   ]
 }
