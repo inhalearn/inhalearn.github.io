@@ -12,6 +12,11 @@
     },
     {
       "dir": "2-ui-structure",
+      "status": "completed",
+      "completed_at": "2026-05-05T21:10:11+0900"
+    },
+    {
+      "dir": "3-stage-0-1",
       "status": "pending"
     }
   ]

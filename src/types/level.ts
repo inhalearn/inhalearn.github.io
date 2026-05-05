@@ -3,14 +3,7 @@
  */
 
 import { BlockType } from './block';
-
-/**
- * Position on the grid
- */
-export interface Position {
-  x: number;
-  y: number;
-}
+import { Position } from './position';
 
 /**
  * Level configuration - defines a single stage
