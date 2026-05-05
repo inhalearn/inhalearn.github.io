@@ -13,7 +13,10 @@
     {
       "step": 1,
       "name": "dependencies",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-05-05T16:12:16+0900",
+      "completed_at": "2026-05-05T16:14:00+0900",
+      "summary": "필수 의존성(zustand, framer-motion) 및 개발 도구(tailwind, vitest, eslint, prettier) 설치 완료"
     },
     {
       "step": 2,
