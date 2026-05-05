@@ -5,6 +5,7 @@ import { getLevelById, getNextLevelId } from '@/data/levels';
 import { LevelConfig } from '@/types/level';
 import { useCodeStore } from '@/store/codeStore';
 import { useLevelStore } from '@/store/levelStore';
+import { useProgressStore } from '@/store/progressStore';
 import { Button } from '@/components/ui/Button';
 import { Canvas } from '@/components/canvas/Canvas';
 import { BlockPicker } from '@/components/blocks/BlockPicker';
@@ -12,14 +13,18 @@ import { CodeEditor } from '@/components/blocks/CodeEditor';
 import { DiscoveryModal } from '@/components/ui/DiscoveryModal';
 import { ComparisonModal } from '@/components/ui/ComparisonModal';
 
-function createBlock(type: BlockType, defaultRepeatCount = 2): Block {
+function createBlock(
+  type: BlockType,
+  defaultRepeatCount = 2,
+  selectedColor = '#0099CC'
+): Block {
   const id = `${type}-${crypto.randomUUID()}`;
 
   switch (type) {
     case 'repeat':
       return { id, type, count: defaultRepeatCount, children: [] };
     case 'color':
-      return { id, type, color: '#0099CC' };
+      return { id, type, color: selectedColor };
     case 'pen-up':
     case 'pen-down':
     case 'move-up':
@@ -75,6 +80,10 @@ function LevelSession({ level }: { level: LevelConfig }) {
   const [showComparisonModal, setShowComparisonModal] = useState(false);
   const [discoverySnapshot, setDiscoverySnapshot] = useState<Block[]>([]);
   const [hasShownDiscovery, setHasShownDiscovery] = useState(false);
+  const [selectedColor, setSelectedColor] = useState(level.palette?.[0] ?? '#0099CC');
+  const [selectedMissionId, setSelectedMissionId] = useState(
+    level.presetMissions?.[0]?.id ?? ''
+  );
 
   const blocks = useCodeStore((state) => state.blocks);
   const addBlock = useCodeStore((state) => state.addBlock);
@@ -91,6 +100,10 @@ function LevelSession({ level }: { level: LevelConfig }) {
   const setCurrentLevel = useLevelStore((state) => state.setCurrentLevel);
   const setExecutionSpeed = useLevelStore((state) => state.setExecutionSpeed);
   const showHint = useLevelStore((state) => state.showHint);
+  const completeCreativeLevel = useLevelStore(
+    (state) => state.completeCreativeLevel
+  );
+  const completedLevels = useProgressStore((state) => state.completedLevels);
 
   useEffect(() => {
     clearBlocks();
@@ -101,14 +114,21 @@ function LevelSession({ level }: { level: LevelConfig }) {
   const currentPosition = executionResult?.finalPosition ?? level.startPosition;
   const trail = executionResult?.trail ?? [level.startPosition];
   const nextLevelId = getNextLevelId(level.id);
-  const missionComplete = executionResult?.success ?? false;
+  const isCreativeLevel = level.completionMode === 'free-draw';
+  const missionComplete = isCreativeLevel
+    ? completedLevels.includes(level.id)
+    : (executionResult?.success ?? false);
   const availableBlocks: BlockType[] = isRepeatUnlocked
     ? level.availableBlocks.includes('repeat')
       ? level.availableBlocks
       : [...level.availableBlocks, 'repeat']
     : level.availableBlocks;
   const defaultRepeatCount = level.unlockRepeatAt ?? 2;
-  const levelCreateBlock = (type: BlockType) => createBlock(type, defaultRepeatCount);
+  const levelCreateBlock = (type: BlockType) =>
+    createBlock(type, defaultRepeatCount, selectedColor);
+  const selectedMission = level.presetMissions?.find(
+    (mission) => mission.id === selectedMissionId
+  );
   const handleAddBlock = (type: BlockType) => {
     const nextBlock = levelCreateBlock(type);
     const nextBlocks = [...blocks, nextBlock];
@@ -141,6 +161,9 @@ function LevelSession({ level }: { level: LevelConfig }) {
       setShowComparisonModal(true);
     }
   };
+  const handleCreativeComplete = () => {
+    completeCreativeLevel(level);
+  };
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#edf8fd_0%,#f8fbfd_45%,#ffffff_100%)] px-4 py-6 text-slate-900">
@@ -162,7 +185,7 @@ function LevelSession({ level }: { level: LevelConfig }) {
           </h1>
           <p className="mt-1 text-lg font-semibold">{level.title}</p>
           <p className="mt-4 rounded-2xl bg-white/20 px-4 py-3 text-sm leading-6">
-            💬 {level.mission}
+            💬 {selectedMission?.description ?? level.mission}
           </p>
         </header>
 
@@ -170,8 +193,82 @@ function LevelSession({ level }: { level: LevelConfig }) {
           level={level}
           currentPosition={currentPosition}
           trail={trail}
+          drawSegments={executionResult?.drawSegments}
           isExecuting={isExecuting}
         />
+
+        {isCreativeLevel && level.presetMissions?.length ? (
+          <section className="rounded-[28px] bg-white p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-slate-200">
+            <div className="mb-3">
+              <p className="text-sm font-semibold text-slate-500">무엇을 그릴까요?</p>
+              <h2 className="text-lg font-bold text-slate-900">작품 아이디어</h2>
+            </div>
+            <div className="grid gap-3">
+              {level.presetMissions.map((mission) => {
+                const isSelected = mission.id === selectedMissionId;
+
+                return (
+                  <button
+                    key={mission.id}
+                    type="button"
+                    onClick={() => setSelectedMissionId(mission.id)}
+                    className={[
+                      'min-h-11 rounded-[22px] border px-4 py-4 text-left transition-colors',
+                      isSelected
+                        ? 'border-sky-300 bg-sky-50'
+                        : 'border-slate-200 bg-slate-50',
+                    ].join(' ')}
+                    data-testid={`preset-mission-${mission.id}`}
+                  >
+                    <p className="text-sm font-bold text-slate-900">{mission.title}</p>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                      {mission.description}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
+
+        {isCreativeLevel && level.palette?.length ? (
+          <section className="rounded-[28px] bg-white p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-slate-200">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-slate-500">색상 선택</p>
+                <h2 className="text-lg font-bold text-slate-900">
+                  색깔 블록 기본값
+                </h2>
+              </div>
+              <span
+                className="rounded-full px-3 py-1 text-xs font-semibold text-white"
+                style={{ backgroundColor: selectedColor }}
+              >
+                {selectedColor}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {level.palette.map((paletteColor) => {
+                const isSelected = paletteColor === selectedColor;
+
+                return (
+                  <button
+                    key={paletteColor}
+                    type="button"
+                    onClick={() => setSelectedColor(paletteColor)}
+                    className={[
+                      'min-h-11 min-w-11 rounded-full ring-2 ring-offset-2 transition-transform',
+                      isSelected ? 'scale-110 ring-slate-900' : 'ring-slate-200',
+                    ].join(' ')}
+                    style={{ backgroundColor: paletteColor }}
+                    aria-label={`색상 ${paletteColor} 선택`}
+                    data-testid={`palette-${paletteColor}`}
+                  />
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
 
         <div className="grid grid-cols-3 gap-2 rounded-[28px] bg-white p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-slate-200">
           <Button
@@ -220,10 +317,22 @@ function LevelSession({ level }: { level: LevelConfig }) {
             disabled={isExecuting || blocks.length === 0}
             onClick={() => void handleExecute()}
           >
-            ▶ 실행하기
+            {isCreativeLevel ? '▶ 그려보기' : '▶ 실행하기'}
           </Button>
 
-          {executionResult && !missionComplete ? (
+          {isCreativeLevel ? (
+            <Button
+              className="mt-2 w-full"
+              size="lg"
+              variant="secondary"
+              disabled={blocks.length === 0}
+              onClick={handleCreativeComplete}
+            >
+              ✅ 완성했어요
+            </Button>
+          ) : null}
+
+          {executionResult && !missionComplete && !isCreativeLevel ? (
             <p className="mt-3 rounded-2xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
               {executionResult.reason === 'out-of-bounds'
                 ? '격자 밖으로 나갔어요. 방향을 다시 확인해보세요.'
@@ -231,9 +340,19 @@ function LevelSession({ level }: { level: LevelConfig }) {
             </p>
           ) : null}
 
+          {executionResult && !missionComplete && isCreativeLevel ? (
+            <p className="mt-3 rounded-2xl bg-sky-50 px-4 py-3 text-sm font-semibold text-[#007299]">
+              실행 결과를 보고 마음에 들면 "완성했어요"를 눌러 마무리하세요.
+            </p>
+          ) : null}
+
           {missionComplete ? (
             <div className="mt-3 space-y-3 rounded-[24px] bg-emerald-50 px-4 py-4 text-sm text-emerald-700">
-              <p className="font-bold">성공! 인덕이가 목표에 도착했어요.</p>
+              <p className="font-bold">
+                {isCreativeLevel
+                  ? '성공! 나만의 그림을 완성했어요.'
+                  : '성공! 인덕이가 목표에 도착했어요.'}
+              </p>
               <div className="grid grid-cols-2 gap-2">
                 {nextLevelId !== null ? (
                   <Link to={`/level/${nextLevelId}`} className="block">

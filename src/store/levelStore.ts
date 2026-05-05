@@ -18,6 +18,7 @@ interface LevelStore {
   setExecutionSpeed: (speed: ExecutionSpeed) => void;
   setErrorBlockIndex: (index: number | null) => void;
   execute: (blocks: Block[], levelConfig: LevelConfig) => Promise<void>;
+  completeCreativeLevel: (levelConfig: LevelConfig) => void;
   showHint: () => void;
   reset: () => void;
 }
@@ -60,6 +61,14 @@ export const useLevelStore = create<LevelStore>((set, get) => ({
       const interpreter = new BlockInterpreter(turtle);
       const result = await interpreter.execute(blocks, get().executionSpeed);
 
+      if (levelConfig.completionMode === 'free-draw') {
+        set({
+          executionResult: result,
+          errorBlockIndex: result.success ? null : (result.errorBlockIndex ?? null),
+        });
+        return;
+      }
+
       set({
         executionResult: result,
         errorBlockIndex: result.success ? null : (result.errorBlockIndex ?? null),
@@ -68,9 +77,8 @@ export const useLevelStore = create<LevelStore>((set, get) => ({
       if (result.success && result.finalPosition) {
         const validation = validator.validate(
           result.finalPosition,
-          levelConfig.goalPosition,
-          blocks.length,
-          levelConfig.optimalBlockCount
+          levelConfig,
+          blocks
         );
 
         if (validation.success) {
@@ -112,6 +120,43 @@ export const useLevelStore = create<LevelStore>((set, get) => ({
     } finally {
       set({ isExecuting: false });
     }
+  },
+
+  completeCreativeLevel: (levelConfig) => {
+    const stars =
+      levelConfig.starRules?.type === 'free-draw'
+        ? (levelConfig.starRules.autoStars ?? 3)
+        : 3;
+    const progressStore = useProgressStore.getState();
+
+    progressStore.completeLevel(levelConfig.id, stars);
+
+    useProgressStore.setState((state) => {
+      const currentProgress = state.levelProgress[levelConfig.id];
+      if (!currentProgress) {
+        return state;
+      }
+
+      return {
+        levelProgress: {
+          ...state.levelProgress,
+          [levelConfig.id]: {
+            ...currentProgress,
+            hintsUsed: get().hintsUsed,
+          },
+        },
+      };
+    });
+
+    set((state) => ({
+      executionResult: state.executionResult ?? {
+        success: true,
+        reason: 'goal-reached',
+        finalPosition: levelConfig.startPosition,
+        trail: [levelConfig.startPosition],
+        drawSegments: [],
+      },
+    }));
   },
 
   showHint: () => set((state) => ({ hintsUsed: state.hintsUsed + 1 })),

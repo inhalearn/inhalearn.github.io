@@ -21,9 +21,9 @@ describe('levelStore', () => {
     localStorage.clear();
     useLevelStore.getState().reset();
     useLevelStore.setState({
-      currentLevel: 0,
-      executionSpeed: 'normal',
-});
+  currentLevel: 0,
+  executionSpeed: 'normal',
+    });
     useProgressStore.getState().reset();
   });
 
@@ -91,6 +91,48 @@ describe('levelStore', () => {
     showHint();
 
     expect(useLevelStore.getState().hintsUsed).toBe(2);
+  });
+
+  it('should not auto-complete free-draw progress on execute', async () => {
+    const freeDrawLevel: LevelConfig = {
+      ...mockLevelConfig,
+      id: 5,
+      completionMode: 'free-draw',
+      starRules: {
+        type: 'free-draw',
+        autoStars: 3,
+      },
+    };
+
+    await useLevelStore.getState().execute(
+      [{ id: '1', type: 'move-right' }],
+      freeDrawLevel
+    );
+
+    expect(useLevelStore.getState().executionResult?.success).toBe(true);
+    expect(useProgressStore.getState().completedLevels).toEqual([]);
+  });
+
+  it('should complete free-draw level through explicit action', () => {
+    const freeDrawLevel: LevelConfig = {
+      ...mockLevelConfig,
+      id: 5,
+      completionMode: 'free-draw',
+      starRules: {
+        type: 'free-draw',
+        autoStars: 3,
+      },
+    };
+
+    useLevelStore.getState().showHint();
+    useLevelStore.getState().completeCreativeLevel(freeDrawLevel);
+
+    const progressState = useProgressStore.getState();
+
+    expect(progressState.completedLevels).toEqual([5]);
+    expect(progressState.levelProgress[5].stars).toBe(3);
+    expect(progressState.levelProgress[5].hintsUsed).toBe(1);
+    expect(useLevelStore.getState().executionResult?.success).toBe(true);
   });
 
   it('should reset execution state', async () => {

@@ -5,6 +5,21 @@
 import { BlockType } from './block';
 import { Position } from './position';
 
+export interface LevelStarRules {
+  type: 'optimal-blocks' | 'repeat-usage' | 'free-draw';
+  threeStarMaxBlocks?: number;
+  twoStarMaxBlocks?: number;
+  minRepeatBlocksForThreeStars?: number;
+  minRepeatBlocksForTwoStars?: number;
+  autoStars?: number;
+}
+
+export interface PresetMissionOption {
+  id: string;
+  title: string;
+  description: string;
+}
+
 /**
  * Level configuration - defines a single stage
  */
@@ -22,6 +37,10 @@ export interface LevelConfig {
   optimalBlockCount: number; // 최적 블록 수 (별 3개 기준)
   discoveryMode?: boolean;
   unlockRepeatAt?: number;
+  completionMode?: 'goal' | 'free-draw';
+  starRules?: LevelStarRules;
+  palette?: string[];
+  presetMissions?: PresetMissionOption[];
 }
 
 /**

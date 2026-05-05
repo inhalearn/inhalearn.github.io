@@ -40,6 +40,23 @@ describe('Level screen', () => {
     expect(screen.getByTestId('block-picker-move-up')).toBeDefined();
   });
 
+  it('shows repeat and four directions in level 3', () => {
+    renderLevel('/level/3');
+
+    expect(screen.getByTestId('block-picker-repeat')).toBeDefined();
+    expect(screen.getByTestId('block-picker-move-right')).toBeDefined();
+    expect(screen.getByTestId('block-picker-move-down')).toBeDefined();
+    expect(screen.getByTestId('block-picker-move-left')).toBeDefined();
+    expect(screen.getByTestId('block-picker-move-up')).toBeDefined();
+  });
+
+  it('renders maze walls in level 4', () => {
+    renderLevel('/level/4');
+
+    expect(screen.getByTestId('wall-3-0')).toBeDefined();
+    expect(screen.getByTestId('wall-7-7')).toBeDefined();
+  });
+
   it('shows a success message after solving level 0', async () => {
     renderLevel('/level/0');
 
@@ -79,6 +96,36 @@ describe('Level screen', () => {
     await waitFor(() => {
       expect(screen.getByText(/코드 비교/)).toBeDefined();
     });
+  });
+
+  it('shows preset missions and palette selection in level 5', () => {
+    renderLevel('/level/5');
+
+    expect(screen.getByTestId('preset-mission-inha')).toBeDefined();
+    expect(screen.getByTestId('preset-mission-heart')).toBeDefined();
+    expect(screen.getByTestId('palette-#212121')).toBeDefined();
+  });
+
+  it('creates a color block with the selected palette color in level 5', () => {
+    renderLevel('/level/5');
+
+    fireEvent.click(screen.getByTestId('palette-#212121'));
+    fireEvent.click(screen.getByTestId('block-picker-color'));
+
+    expect(screen.getByText('🎨 색상 #212121')).toBeDefined();
+  });
+
+  it('completes free-draw level through the explicit completion action', async () => {
+    renderLevel('/level/5');
+
+    fireEvent.click(screen.getByTestId('block-picker-move-right'));
+    fireEvent.click(screen.getByRole('button', { name: '✅ 완성했어요' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('성공! 나만의 그림을 완성했어요.')).toBeDefined();
+    });
+
+    expect(useProgressStore.getState().completedLevels).toContain(5);
   });
 
   it('handles an invalid level id', () => {

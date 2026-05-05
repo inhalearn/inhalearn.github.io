@@ -43,4 +43,39 @@ describe('Canvas', () => {
     expect(screen.getByTestId('induck')).toBeDefined();
     expect(screen.getByText('실행 중')).toBeDefined();
   });
+
+  it('renders colored trail segments when drawing metadata exists', () => {
+    render(
+      <Canvas
+        level={levels[5]}
+        currentPosition={{ x: 6, y: 5 }}
+        trail={[levels[5].startPosition, { x: 6, y: 5 }]}
+        drawSegments={[
+          {
+            from: { x: 5, y: 5 },
+            to: { x: 6, y: 5 },
+            color: '#212121',
+          },
+        ]}
+      />
+    );
+
+    const line = screen.getByTestId('trail-line-0');
+
+    expect(screen.getByTestId('trail-layer')).toBeDefined();
+    expect(line.getAttribute('stroke')).toBe('#212121');
+  });
+
+  it('does not render trail layer for pen-up only movement', () => {
+    render(
+      <Canvas
+        level={levels[5]}
+        currentPosition={{ x: 6, y: 5 }}
+        trail={[levels[5].startPosition, { x: 6, y: 5 }]}
+        drawSegments={[]}
+      />
+    );
+
+    expect(screen.queryByTestId('trail-layer')).toBeNull();
+  });
 });

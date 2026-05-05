@@ -1,12 +1,15 @@
 import { LevelConfig } from '@/types/level';
+import { DrawSegment } from '@/types/execution';
 import { Position } from '@/types/position';
 import { Grid } from './Grid';
 import { Induck } from './Induck';
+import { Trail } from './Trail';
 
 export interface CanvasProps {
   level: LevelConfig;
   currentPosition: Position;
   trail?: Position[];
+  drawSegments?: DrawSegment[];
   isExecuting?: boolean;
 }
 
@@ -14,6 +17,7 @@ export function Canvas({
   level,
   currentPosition,
   trail = [],
+  drawSegments = [],
   isExecuting = false,
 }: CanvasProps) {
   return (
@@ -40,6 +44,7 @@ export function Canvas({
         data-testid="level-canvas"
       >
         <Grid level={level} trail={trail} />
+        <Trail gridSize={level.gridSize} segments={drawSegments} />
         <Induck level={level} position={currentPosition} />
       </div>
     </section>

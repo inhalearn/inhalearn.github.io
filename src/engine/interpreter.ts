@@ -42,6 +42,21 @@ export class BlockInterpreter {
         continue;
       }
 
+      if (block.type === 'color') {
+        this.turtle.setPenColor(block.color);
+        continue;
+      }
+
+      if (block.type === 'pen-up') {
+        this.turtle.setPenDown(false);
+        continue;
+      }
+
+      if (block.type === 'pen-down') {
+        this.turtle.setPenDown(true);
+        continue;
+      }
+
       if (!this.isMoveBlock(block.type)) {
         continue;
       }
@@ -63,6 +78,7 @@ export class BlockInterpreter {
           reason: this.turtle.getLastFailureReason() ?? 'collision',
           errorBlockIndex: index,
           trail: this.turtle.getTrail(),
+          drawSegments: this.turtle.getDrawSegments(),
         };
       }
 
@@ -78,6 +94,7 @@ export class BlockInterpreter {
       success: true,
       finalPosition: this.turtle.getPosition(),
       trail: this.turtle.getTrail(),
+      drawSegments: this.turtle.getDrawSegments(),
     };
   }
 
