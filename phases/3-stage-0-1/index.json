@@ -1,0 +1,37 @@
+{
+  "project": "인하런",
+  "phase": "3-stage-0-1",
+  "steps": [
+    {
+      "step": 0,
+      "name": "level-data",
+      "status": "completed",
+      "started_at": "2026-05-05T21:20:53+0900",
+      "completed_at": "2026-05-05T21:23:20+0900",
+      "summary": "스테이지 0-1 레벨 데이터와 조회 유틸리티 구현 완료 (src/data/levels.ts, levels.test.ts 추가; stage lookup/next-level 로직 포함)"
+    },
+    {
+      "step": 1,
+      "name": "canvas-core",
+      "status": "completed",
+      "completed_at": "2026-05-05T21:24:52+0900",
+      "summary": "격자/벽/목표/인덕이 시각화용 canvas 컴포넌트 구현 완료 (Canvas, Grid, Induck 및 렌더링 테스트 추가)"
+    },
+    {
+      "step": 2,
+      "name": "block-editor",
+      "status": "completed",
+      "completed_at": "2026-05-05T21:26:07+0900",
+      "summary": "스테이지 0-1용 블록 선택기와 코드 편집 UI 구현 완료 (BlockPicker, CodeEditor 및 상호작용 테스트 추가)"
+    },
+    {
+      "step": 3,
+      "name": "level-screen",
+      "status": "completed",
+      "completed_at": "2026-05-05T21:27:57+0900",
+      "summary": "스테이지 0-1 플레이 가능한 Level 화면과 라우트 연동 완료 (레벨 선택, 실행, 성공/실패 피드백, 화면 테스트 포함)"
+    }
+  ],
+  "created_at": "2026-05-05T21:20:53+0900",
+  "completed_at": "2026-05-05T21:27:57+0900"
+}

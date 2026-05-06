@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="10분 안에 프로그래밍 체험하기 - 인하대 블록 코딩 플레이그라운드" />
+    <title>인하런 - 인덕이와 블록 코딩 첫 수업</title>
+
+    <!-- GitHub Pages SPA routing support -->
+    <script>
+      // Restore path from redirect query parameter (set by 404.html)
+      (function () {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect !== location.href) {
+          history.replaceState(null, null, redirect);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- GitHub Pages redirect handler -->
+    <script>
+      (function () {
+        var location = window.location;
+        if (location.search.slice(1)) {
+          var redirect = location.search
+            .slice(1)
+            .split('&')
+            .filter(function (segment) {
+              return segment.indexOf('=/') === 0;
+            })[0];
+
+          if (redirect) {
+            redirect = redirect.slice(2);
+            redirect = redirect.replace(/~and~/g, '&');
+            sessionStorage.redirect = location.pathname.slice(0, -1) + redirect;
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>

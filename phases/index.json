@@ -1,0 +1,39 @@
+{
+  "phases": [
+    {
+      "dir": "0-setup",
+      "status": "completed",
+      "completed_at": "2026-05-05T16:25:39+0900"
+    },
+    {
+      "dir": "1-engine",
+      "status": "completed",
+      "completed_at": "2026-05-05T20:35:56+0900"
+    },
+    {
+      "dir": "2-ui-structure",
+      "status": "completed",
+      "completed_at": "2026-05-05T21:10:11+0900"
+    },
+    {
+      "dir": "3-stage-0-1",
+      "status": "completed",
+      "completed_at": "2026-05-05T21:27:57+0900"
+    },
+    {
+      "dir": "4-stage-2",
+      "status": "completed",
+      "completed_at": "2026-05-05T21:51:45+0900"
+    },
+    {
+      "dir": "5-stage-3-5",
+      "status": "completed",
+      "completed_at": "2026-05-05T22:12:26+0900"
+    },
+    {
+      "dir": "6-optimization-deploy",
+      "status": "completed",
+      "completed_at": "2026-05-06T09:10:30+0900"
+    }
+  ]
+}
