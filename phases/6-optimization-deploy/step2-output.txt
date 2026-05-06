@@ -1,0 +1,77 @@
+# Step 2: github-actions-deploy — Completion Report
+
+## Status: ✅ COMPLETED
+
+## Summary
+GitHub Actions workflow successfully configured for automatic Pages deployment on main branch pushes.
+
+## Changes Made
+
+### 1. Workflow File Created
+- `.github/workflows/deploy.yml`
+- Uses modern GitHub Actions ecosystem (v4/v5)
+- Node.js 22 with npm caching
+
+### 2. Build Pipeline
+The workflow executes in sequence:
+1. Checkout code
+2. Setup Node.js environment
+3. Install dependencies (npm ci)
+4. Lint (npm run lint)
+5. Run unit tests (npm run test:unit)
+6. Build production bundle (npm run build)
+7. Upload Pages artifact
+8. Deploy to GitHub Pages
+
+### 3. Key Features
+- **Trigger**: Push to main branch + manual workflow_dispatch
+- **Permissions**: Configured for Pages write and id-token
+- **Concurrency**: Pages group, non-cancelling
+- **Artifact Path**: ./dist
+- **Test Gate**: All tests must pass before deployment
+
+## Verification Results
+
+### AC Commands
+```
+✅ npm run test:unit — 96/96 tests passed
+✅ npm run lint — 0 warnings/errors
+✅ npm run build — Success (61.23KB gzipped)
+```
+
+### Workflow Checklist
+- ✅ Main branch push trigger configured
+- ✅ Pages permissions (write, id-token) set
+- ✅ npm ci for dependency installation
+- ✅ npm run lint included
+- ✅ npm run test:unit included
+- ✅ npm run build included
+- ✅ upload-pages-artifact action present
+- ✅ deploy-pages action present
+- ✅ Build job and deploy job separated
+- ✅ Environment URL output configured
+
+### Architecture Compliance
+- ✅ No server components introduced
+- ✅ Static GitHub Pages deployment only
+- ✅ No manual intervention required
+- ✅ Existing test suite preserved
+- ✅ Build commands unchanged from local development
+
+## Bundle Metrics (Maintained)
+- Main bundle: 61.23KB gzipped
+- Well under 500KB target
+- Route-level code splitting active
+
+## Next Steps
+After merging to main:
+1. GitHub Actions will automatically run the workflow
+2. Pages deployment requires repository Pages settings:
+   - Settings → Pages → Source: "GitHub Actions"
+3. Deployment URL will be available at: https://inhalearn.github.io
+
+## Notes
+- No repository secrets required (uses GITHUB_TOKEN)
+- Deployment assumes base path "/" (user site: inhalearn.github.io)
+- 404.html fallback from step 1 ensures SPA routing works
+- Local development workflow (npm run dev) unaffected
