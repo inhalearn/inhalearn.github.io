@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import {
   BrowserRouter,
   Link,
@@ -7,9 +7,11 @@ import {
 } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
-import { Completion } from '@/components/screens/Completion';
-import { Level } from '@/components/screens/Level';
-import { LevelSelect } from '@/components/screens/LevelSelect';
+
+// Route-level code splitting for non-landing screens
+const Completion = lazy(() => import('@/components/screens/Completion').then(m => ({ default: m.Completion })));
+const Level = lazy(() => import('@/components/screens/Level').then(m => ({ default: m.Level })));
+const LevelSelect = lazy(() => import('@/components/screens/LevelSelect').then(m => ({ default: m.LevelSelect })));
 
 function Landing() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -108,27 +110,41 @@ function PlaceholderScreen({
   );
 }
 
+// Simple loading fallback for route transitions
+function RouteLoading() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-slate-50">
+      <div className="text-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#0099CC] border-r-transparent"></div>
+        <p className="mt-3 text-sm text-slate-600">로딩 중...</p>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route
-          path="/demo"
-          element={
-            <PlaceholderScreen
-              title="Interactive Demo"
-              description="20초 체험 데모가 들어올 자리입니다."
-            />
-          }
-        />
-        <Route
-          path="/levels"
-          element={<LevelSelect />}
-        />
-        <Route path="/level/:id" element={<Level />} />
-        <Route path="/completion" element={<Completion />} />
-      </Routes>
+      <Suspense fallback={<RouteLoading />}>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route
+            path="/demo"
+            element={
+              <PlaceholderScreen
+                title="Interactive Demo"
+                description="20초 체험 데모가 들어올 자리입니다."
+              />
+            }
+          />
+          <Route
+            path="/levels"
+            element={<LevelSelect />}
+          />
+          <Route path="/level/:id" element={<Level />} />
+          <Route path="/completion" element={<Completion />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
