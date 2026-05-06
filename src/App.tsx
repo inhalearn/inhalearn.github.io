@@ -1,3 +1,21 @@
+/**
+ * App.tsx - Main application router
+ *
+ * GitHub Pages SPA Routing Strategy:
+ * - Uses BrowserRouter (NOT HashRouter) to preserve clean URLs: /level/2 instead of /#/level/2
+ * - Direct access/refresh to deep links (e.g., /level/2) is handled by:
+ *   1. 404.html: Redirects to /?/level/2 with path encoded in query param
+ *   2. index.html: Restores original path from query param via sessionStorage
+ *   3. BrowserRouter: Renders correct route component
+ *
+ * This approach:
+ * - Maintains URL contract (/level/:id) without server-side routing
+ * - Works on GitHub Pages static hosting (user site: inhalearn.github.io)
+ * - Preserves query parameters and hash fragments
+ * - No code changes needed in route components
+ *
+ * See: /docs/ADR.md (ADR-005) for GitHub Pages deployment decision
+ */
 import { lazy, Suspense, useState } from 'react';
 import {
   BrowserRouter,

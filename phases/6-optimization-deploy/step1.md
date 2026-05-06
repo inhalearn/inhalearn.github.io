@@ -52,15 +52,16 @@ npm run test:unit && npm run lint && npm run build
 ## 검증 절차
 
 1. 위 AC 커맨드를 실행한다.
-2. 추가로 `npm run preview` 또는 동등한 정적 미리보기 환경에서 아래를 수동 확인한다:
+2. 추가로 정적 배포 호환성을 점검하되, 장시간 유지되는 서버를 포그라운드로 띄운 채 종료하지 않는 검증은 하지 마라. 필요하면 빌드 산출물과 fallback 파일 구성을 점검하거나, 미리보기 서버를 사용하더라도 자동 종료되는 방식으로만 확인한다.
+3. 아래 경로가 GitHub Pages에서 직접 진입 가능한 구조인지 확인한다:
    - `/`
    - `/levels`
    - `/level/2`
    - `/completion`
-3. 아키텍처 체크리스트를 확인한다:
+4. 아키텍처 체크리스트를 확인한다:
    - 정적 호스팅 제약 해결이 라우트 컴포넌트 구조를 불필요하게 복잡하게 만들지 않았는가?
    - 서버/백엔드 없이 GitHub Pages 제약 안에서 해결했는가?
-4. 결과에 따라 `phases/6-optimization-deploy/index.json`의 해당 step을 업데이트한다:
+5. 결과에 따라 `phases/6-optimization-deploy/index.json`의 해당 step을 업데이트한다:
    - 성공 → `"status": "completed"`, `"summary": "GitHub Pages 정적 환경에서 SPA deep-link/refresh 대응 완료 (...)" `
    - 수정 3회 시도 후에도 실패 → `"status": "error"`, `"error_message": "구체적 에러 내용"`
    - 사용자 개입 필요 → `"status": "blocked"`, `"blocked_reason": "구체적 사유"` 후 즉시 중단
