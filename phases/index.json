@@ -32,7 +32,8 @@
     },
     {
       "dir": "6-optimization-deploy",
-      "status": "pending"
+      "status": "completed",
+      "completed_at": "2026-05-06T09:10:30+0900"
     }
   ]
 }
